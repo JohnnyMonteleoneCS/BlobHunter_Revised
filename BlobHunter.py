@@ -94,22 +94,30 @@ def get_credentials():
 
 def get_tenants_and_subscriptions(creds):
     subscription_client = SubscriptionClient(creds)
-    tenants_ids = list()
-    tenants_names = list()
-    subscriptions_ids = list()
-    subscription_names = list()
+    tenants_dict = {}  # Use dict to store unique tenant info
+    subscriptions_ids = []
+    subscription_names = []
 
     for sub in subscription_client.subscriptions.list():
-         if sub.state == 'Enabled':
-            tenants_ids.append(sub.tenant_id)
+        if sub.state == 'Enabled':
+            tenant_id = sub.tenant_id
             subscriptions_ids.append(sub.id[15:])
             subscription_names.append(sub.display_name)
+            if tenant_id not in tenants_dict:
+                tenants_dict[tenant_id] = None
 
-    # Getting tenant name from given tenant id
-    for ten_id in tenants_ids:
-        for ten in subscription_client.tenants.list():
-            if ten_id == ten.id[9:]:
-                tenants_names.append(ten.display_name) 
+    # Getting tenant names
+    for tenant in subscription_client.tenants.list():
+        if tenant.id[9:] in tenants_dict:
+            tenants_dict[tenant.id[9:]] = tenant.display_name
+
+    # Create lists in the same order as subscriptions
+    tenants_ids = []
+    tenants_names = []
+    for sub in subscription_client.subscriptions.list():
+        if sub.state == 'Enabled':
+            tenants_ids.append(sub.tenant_id)
+            tenants_names.append(tenants_dict.get(sub.tenant_id, "Unknown Tenant"))
 
     return tenants_ids, tenants_names, subscriptions_ids, subscription_names
 
@@ -346,8 +354,8 @@ def main():
 
     tenants_ids, tenants_names, subs_ids, subs_names = choose_subscriptions(credentials)
 
-    if type(tenants_ids) == list:
-        for i in range(0, len(subs_ids)):
+    if isinstance(tenants_ids, list):
+        for i in range(len(subs_ids)):
             check_subscription(tenants_ids[i], tenants_names[i], subs_ids[i], subs_names[i], credentials)
     else:
         check_subscription(tenants_ids, tenants_names, subs_ids, subs_names, credentials)

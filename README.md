@@ -1,49 +1,87 @@
 # BlobHunter
 
-A tool for scanning Azure Storage Accounts for publicly accessible containers.
-
-## Prerequisites
-
-- Python 3.x
-- PowerShell 7 ([Download](https://aka.ms/powershell-release?tag=stable))
-- Azure CLI ([Download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli))
-
-## Installation
-
-1. Clone the repository
-2. Create a virtual environment:
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-```
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+A Python-based security tool for discovering public blob containers in Azure Storage accounts across all subscriptions in a tenant.
 
 ## Recent Updates
 
-- Added PowerShell 7 support for Azure CLI commands
-- Improved Azure CLI path handling
-- Added automatic Azure CLI path detection
-- Added better error handling for Azure CLI installation checks
+- Fixed array index out of range issue with tenant and subscription mapping
+- Improved tenant name resolution using dictionary-based approach
+- Added better handling for unknown tenant names
+- Enhanced subscription selection logic
+
+## Prerequisites
+
+- Python 3.6 or higher
+- PowerShell 7 (pwsh)
+- Azure CLI installed and configured
+- Required Python packages:
+  - azure-identity
+  - azure-mgmt-resource
+  - azure-mgmt-storage
+  - azure-storage-blob
+  - pyinputplus
+
+## Installation
+
+1. Install Azure CLI from: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
+2. Install PowerShell 7 from: https://aka.ms/powershell-release?tag=stable
+3. Install required Python packages:
+```bash
+pip install azure-identity azure-mgmt-resource azure-mgmt-storage azure-storage-blob pyinputplus
+```
 
 ## Usage
 
-1. Ensure Azure CLI is installed and in PATH
-2. Run the script:
+1. Login to Azure CLI:
 ```bash
-python BlobHunter/BlobHunter.py
+az login
 ```
 
-## Troubleshooting
+2. Run the script:
+```bash
+python BlobHunter.py
+```
 
-If you encounter Azure CLI path issues:
-1. Verify Azure CLI is installed
-2. The script will automatically attempt to add the Azure CLI path
-3. Default Azure CLI paths checked:
-   - C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin
-   - C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin
+3. Choose scanning options:
+   - 'Y' to scan all available subscriptions
+   - 'N' to select specific subscriptions to scan
+
+## Output
+
+The script generates a CSV file named `public-containers-{date}.csv` containing:
+- Tenant ID
+- Tenant Name
+- Subscription ID
+- Subscription Name
+- Resource Group
+- Storage Account
+- Container
+- Public Access Level
+- URL
+- Total Files
+- File counts by extension (txt, csv, pdf, docx, xlsx, others)
+
+## Code Structure
+
+- `print_logo()`: Displays the tool banner
+- `setup_azure_cli_path()`: Configures Azure CLI environment
+- `get_credentials()`: Handles Azure authentication
+- `get_tenants_and_subscriptions()`: Maps tenants and subscriptions
+- `choose_subscriptions()`: Handles subscription selection
+- `check_subscription()`: Scans individual subscriptions
+- `check_storage_account()`: Analyzes storage accounts
+- `iterator_wrapper()`: Handles API pagination and throttling
+- `count_files_extensions()`: Analyzes file types in containers
+- `write_csv()`: Generates the report file
+
+## Error Handling
+
+- Azure CLI installation check
+- PowerShell 7 verification
+- Login state validation
+- API throttling management
+- Permission checking for storage accounts
+- Tenant name resolution with fallback
 
 ## Authors
 
