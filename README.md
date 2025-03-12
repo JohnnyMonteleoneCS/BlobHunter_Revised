@@ -21,6 +21,21 @@ A Python-based security tool for discovering public blob containers in Azure Sto
   - azure-storage-blob
   - pyinputplus
 
+## Azure Role Requirements
+
+The tool requires an Azure user with one of the following built-in roles:
+- Owner
+- Contributor
+- Storage Account Contributor
+
+Alternatively, any Azure user with permissions to perform these specific actions:
+- Microsoft.Resources/subscriptions/read
+- Microsoft.Resources/subscriptions/resourceGroups/read
+- Microsoft.Storage/storageAccounts/read
+- Microsoft.Storage/storageAccounts/listkeys/action
+- Microsoft.Storage/storageAccounts/blobServices/containers/read
+- Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read
+
 ## Installation
 
 1. Install Azure CLI from: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
